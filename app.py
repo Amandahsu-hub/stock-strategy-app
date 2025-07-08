@@ -2,6 +2,8 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+plt.rcParams['font.family'] = 'Arial Unicode MS'
+plt.rcParams['axes.unicode_minus'] = False
 import os
 
 st.set_page_config(page_title="長榮短波策略模擬器", layout="centered")
@@ -9,12 +11,10 @@ st.title("📈 長榮短波策略模擬器（整合交易紀錄）")
 
 CSV_FILE = "trades.csv"
 
-# 初始化交易紀錄 CSV 檔案
 if not os.path.exists(CSV_FILE):
     df_init = pd.DataFrame(columns=["交易月份", "標的", "買進價格", "賣出價格", "股數"])
     df_init.to_csv(CSV_FILE, index=False)
 
-# 加入交易表單
 with st.form("add_trade_form"):
     st.subheader("📝 輸入一筆新交易")
     col1, col2 = st.columns(2)
@@ -39,7 +39,6 @@ with st.form("add_trade_form"):
         df.to_csv(CSV_FILE, index=False)
         st.success("✅ 成功新增交易紀錄！請重新整理以查看更新後結果。")
 
-# 模擬區塊（讀取 CSV 檔）
 if os.path.exists(CSV_FILE):
     df = pd.read_csv(CSV_FILE)
     if len(df) > 0:
