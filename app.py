@@ -1,29 +1,22 @@
 
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import font_manager
+import plotly.graph_objects as go
 import os
-
-# 內嵌字體：Arial Unicode
-font_path = "./fonts/ArialUnicode.ttf"
-font_prop = font_manager.FontProperties(fname=font_path)
-plt.rcParams['font.family'] = font_prop.get_name()
-plt.rcParams['axes.unicode_minus'] = False
 
 st.set_page_config(page_title="長榮短波策略模擬器", layout="centered")
 st.title("📈 長榮短波策略模擬器（整合交易紀錄）")
 
 CSV_FILE = "trades.csv"
 if not os.path.exists(CSV_FILE):
-    df_init = pd.DataFrame(columns=["交易月份", "標的", "買進價格", "賣出價格", "股數"])
+    df_init = pd.DataFrame(columns=["交易月份", "股票代碼", "買進價格", "賣出價格", "股數"])
     df_init.to_csv(CSV_FILE, index=False)
 
 with st.form("add_trade_form"):
     st.subheader("📝 輸入一筆新交易")
     col1, col2 = st.columns(2)
     month = col1.text_input("交易月份（格式：YYYY-MM）")
-    symbol = col2.text_input("標的名稱（例如：長榮）")
+    symbol = col2.text_input("股票代碼（例如：2603）")
     col3, col4 = st.columns(2)
     buy_price = col3.number_input("買進價格", min_value=0.0, value=150.0)
     sell_price = col4.number_input("賣出價格", min_value=0.0, value=158.0)
@@ -32,7 +25,7 @@ with st.form("add_trade_form"):
     if submitted and month and symbol:
         new_trade = pd.DataFrame([{
             "交易月份": month,
-            "標的": symbol,
+            "股票代碼": symbol,
             "買進價格": buy_price,
             "賣出價格": sell_price,
             "股數": shares
@@ -85,6 +78,17 @@ if os.path.exists(CSV_FILE):
         df_result = pd.DataFrame(results)
         st.subheader("📋 模擬結果表")
         st.dataframe(df_result)
+
+        st.subheader("🗑️ 移除錯誤的交易紀錄")
+        df_display = df.copy()
+        df_display.index += 1
+        st.dataframe(df_display)
+        remove_index = st.number_input("輸入要移除的交易編號（從上表第幾筆）", min_value=1, max_value=len(df), step=1)
+        if st.button("刪除該筆交易紀錄"):
+            df.drop(index=remove_index - 1, inplace=True)
+            df.to_csv(CSV_FILE, index=False)
+            st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
+
         st.subheader("📊 統計總結")
         st.write(f"- 達標次數：{achieved} / {len(df)}")
         st.write(f"- 達標率：{achieved / len(df):.0%}")
@@ -94,7 +98,6 @@ if os.path.exists(CSV_FILE):
         else:
             st.success("✅ 表現穩健")
         st.subheader("📈 資金成長曲線")
-        import plotly.graph_objects as go
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=df_result["月份"],
@@ -109,6 +112,28 @@ if os.path.exists(CSV_FILE):
             yaxis_title="資金總額",
         )
         st.plotly_chart(fig)
+
+        st.subheader("📚 各股票總表紀錄")
+
+        summary = df.copy()
+        summary["損益金額"] = (summary["賣出價格"] - summary["買進價格"]) * summary["股數"]
+        summary["總成本"] = summary["買進價格"] * summary["股數"]
+        summary["總收益"] = summary["賣出價格"] * summary["股數"]
+        group = summary.groupby("股票代碼").agg({
+            "股數": "sum",
+            "總成本": "sum",
+            "總收益": "sum",
+            "損益金額": "sum"
+        }).rename(columns={
+            "股數": "總股數",
+            "總成本": "總成本",
+            "總收益": "總收益",
+            "損益金額": "總盈虧"
+        })
+        group["平均成本"] = group["總成本"] / group["總股數"]
+        group["報酬率"] = (group["總收益"] - group["總成本"]) / group["總成本"]
+        st.dataframe(group.reset_index())
+
     else:
         st.warning("尚未有交易紀錄，請先新增一筆！")
 else:
