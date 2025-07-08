@@ -37,7 +37,12 @@ with st.form("add_trade_form"):
 
 if os.path.exists(CSV_FILE):
     df = pd.read_csv(CSV_FILE)
-    if len(df) > 0:
+if len(df) > 0:
+    remove_index = st.number_input("輸入要移除的交易編號（從上表第幾筆）", min_value=1, max_value=len(df), step=1)
+    if st.button("刪除該筆交易紀錄"):
+        df.drop(index=remove_index - 1, inplace=True)
+        df.to_csv(CSV_FILE, index=False)
+        st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
         df["損益金額"] = (df["賣出價格"] - df["買進價格"]) * df["股數"]
         df["報酬率"] = (df["賣出價格"] - df["買進價格"]) / df["買進價格"]
         initial_capital = 100000
@@ -83,9 +88,12 @@ if os.path.exists(CSV_FILE):
         df_display = df.copy()
         df_display.index += 1
         st.dataframe(df_display)
-        if len(df) > 0:
+if len(df) > 0:
     remove_index = st.number_input("輸入要移除的交易編號（從上表第幾筆）", min_value=1, max_value=len(df), step=1)
     if st.button("刪除該筆交易紀錄"):
+        df.drop(index=remove_index - 1, inplace=True)
+        df.to_csv(CSV_FILE, index=False)
+        st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
         df.drop(index=remove_index - 1, inplace=True)
         df.to_csv(CSV_FILE, index=False)
         st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
@@ -95,7 +103,12 @@ if os.path.exists(CSV_FILE):
 
         st.subheader("📊 統計總結")
         st.write(f"- 達標次數：{achieved} / {len(df)}")
-        if len(df) > 0:
+if len(df) > 0:
+    remove_index = st.number_input("輸入要移除的交易編號（從上表第幾筆）", min_value=1, max_value=len(df), step=1)
+    if st.button("刪除該筆交易紀錄"):
+        df.drop(index=remove_index - 1, inplace=True)
+        df.to_csv(CSV_FILE, index=False)
+        st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
         st.write(f"- 達標率：{achieved / len(df):.0%}")
     else:
         st.write("- 達標率：無法計算（無交易紀錄）")
