@@ -94,15 +94,21 @@ if os.path.exists(CSV_FILE):
         else:
             st.success("✅ 表現穩健")
         st.subheader("📈 資金成長曲線")
-        fig, ax = plt.subplots()
-        ax.plot(df_result["月份"], df_result["月末資金"], marker='o')
-        ax.axhline(initial_capital + target_gain, color='gray', linestyle='--', label='月目標線')
-        plt.xticks(rotation=45)
-        plt.title("資金成長趨勢")
-        plt.xlabel("月份")
-        plt.ylabel("資金總額")
-        plt.grid(True)
-        st.pyplot(fig)
+        import plotly.graph_objects as go
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=df_result["月份"],
+            y=df_result["月末資金"],
+            mode='lines+markers',
+            name='資金成長'
+        ))
+        fig.add_hline(y=initial_capital + target_gain, line_dash="dash", line_color="gray", annotation_text="月目標線")
+        fig.update_layout(
+            title="資金成長曲線",
+            xaxis_title="月份",
+            yaxis_title="資金總額",
+        )
+        st.plotly_chart(fig)
     else:
         st.warning("尚未有交易紀錄，請先新增一筆！")
 else:
