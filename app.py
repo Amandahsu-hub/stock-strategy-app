@@ -84,11 +84,11 @@ if os.path.exists(CSV_FILE):
         df_display.index += 1
         st.dataframe(df_display)
         if len(df) > 0:
-        remove_index = st.number_input("輸入要移除的交易編號（從上表第幾筆）", min_value=1, max_value=len(df), step=1)
-        if st.button("刪除該筆交易紀錄"):
-            df.drop(index=remove_index - 1, inplace=True)
-            df.to_csv(CSV_FILE, index=False)
-            st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
+    remove_index = st.number_input("輸入要移除的交易編號（從上表第幾筆）", min_value=1, max_value=len(df), step=1)
+    if st.button("刪除該筆交易紀錄"):
+        df.drop(index=remove_index - 1, inplace=True)
+        df.to_csv(CSV_FILE, index=False)
+        st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
             df.drop(index=remove_index - 1, inplace=True)
             df.to_csv(CSV_FILE, index=False)
             st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
