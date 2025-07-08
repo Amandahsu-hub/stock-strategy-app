@@ -97,9 +97,6 @@ if len(df) > 0:
         df.drop(index=remove_index - 1, inplace=True)
         df.to_csv(CSV_FILE, index=False)
         st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
-            df.drop(index=remove_index - 1, inplace=True)
-            df.to_csv(CSV_FILE, index=False)
-            st.success("✅ 已成功刪除，請重新整理查看最新紀錄")
 
         st.subheader("📊 統計總結")
         st.write(f"- 達標次數：{achieved} / {len(df)}")
