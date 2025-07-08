@@ -83,6 +83,7 @@ if os.path.exists(CSV_FILE):
         df_display = df.copy()
         df_display.index += 1
         st.dataframe(df_display)
+        if len(df) > 0:
         remove_index = st.number_input("輸入要移除的交易編號（從上表第幾筆）", min_value=1, max_value=len(df), step=1)
         if st.button("刪除該筆交易紀錄"):
             df.drop(index=remove_index - 1, inplace=True)
@@ -91,7 +92,10 @@ if os.path.exists(CSV_FILE):
 
         st.subheader("📊 統計總結")
         st.write(f"- 達標次數：{achieved} / {len(df)}")
+        if len(df) > 0:
         st.write(f"- 達標率：{achieved / len(df):.0%}")
+    else:
+        st.write("- 達標率：無法計算（無交易紀錄）")
         st.write(f"- 最長連續未達標：{max_streak} 個月")
         if max_streak >= 3:
             st.error("⚠️ 建議檢討策略")
