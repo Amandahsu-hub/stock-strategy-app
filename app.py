@@ -152,6 +152,6 @@ if len(df) > 0:
         st.dataframe(group.reset_index())
 
     else:
+    else:
         st.warning("尚未有交易紀錄，請先新增一筆！")
-else:
     st.error("找不到交易紀錄檔案！")
